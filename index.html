@@ -1,75 +1,36 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Programmingzemi RSS フィード</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-        }
-        .rss-item {
-            margin-bottom: 20px;
-        }
-        .rss-item h2 {
-            margin: 0;
-            font-size: 18px;
-        }
-        .rss-item p {
-            margin: 5px 0;
-        }
-        .rss-item a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        .rss-item a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Feeder Chat Monitor</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.js"></script>
 </head>
 <body>
-    <h1>Programmingzemi 最新RSS</h1>
-    <div id="rss-feed"></div>
+  <h1>Feeder Chat Monitor</h1>
+  <p>アクティブユーザー数: <span id="activeUserCount">0</span></p>
 
-    <script>
-        const rssUrl = "https://www1.x-feeder.info/Programmingzemi/rss.php";  // 指定されたRSSフィードのURL
+  <script>
+    // socket.io接続エンドポイントを指定
+    const socket = io('https://www1.x-feeder.info:2096', {
+      transports: ['polling'],
+      query: { EIO: 3, transport: 'polling' }
+    });
 
-        // RSSフィードを取得して解析する関数
-        async function loadRSSFeed() {
-            try {
-                const response = await fetch(rssUrl);
-                const xmlText = await response.text();
-                const parser = new DOMParser();
-                const xmlDoc = parser.parseFromString(xmlText, "application/xml");
+    // サーバーから受け取るデータを処理
+    socket.on('connect', () => {
+      console.log('Connected to Feeder Chat');
+    });
 
-                const items = xmlDoc.querySelectorAll("item");  // <item>タグを選択
+    // 必要に応じてイベントをリッスン
+    socket.on('activeUserCount', (data) => {
+      console.log('Active User Count:', data);
+      document.getElementById('activeUserCount').textContent = data;
+    });
 
-                const feedContainer = document.getElementById("rss-feed");
-                feedContainer.innerHTML = "";  // 以前の内容をクリア
-
-                // 各アイテムを表示
-                items.forEach(item => {
-                    const title = item.querySelector("title").textContent;
-                    const link = item.querySelector("link").textContent;
-                    const description = item.querySelector("description").textContent;
-
-                    const itemElement = document.createElement("div");
-                    itemElement.classList.add("rss-item");
-
-                    itemElement.innerHTML = `
-                        <h2><a href="${link}" target="_blank">${title}</a></h2>
-                        <p>${description}</p>
-                    `;
-                    feedContainer.appendChild(itemElement);
-                });
-            } catch (error) {
-                console.error("RSSフィードの読み込みに失敗しました:", error);
-            }
-        }
-
-        // ページ読み込み時にRSSフィードを読み取る
-        loadRSSFeed();
-    </script>
+    // 接続切断時の処理
+    socket.on('disconnect', () => {
+      console.log('Disconnected from Feeder Chat');
+    });
+  </script>
 </body>
 </html>
