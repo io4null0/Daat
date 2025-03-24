@@ -10,26 +10,26 @@
   <p>アクティブユーザー数: <span id="activeUserCount">0</span></p>
 
   <script>
-    // socket.io接続エンドポイントを指定
+    // socket.io接続エンドポイントを指定し、SIDをクエリパラメータとして追加
     const socket = io('https://www1.x-feeder.info:2096', {
       transports: ['polling'],
-      query: { EIO: 3, transport: 'polling' }
+      query: { EIO: 3, transport: 'polling', sid: 'k4iTSmjzmd-1HfG0AOXW' }
     });
 
-    // サーバーから受け取るデータを処理
+    // サーバーから接続成功の通知を受け取る
     socket.on('connect', () => {
-      console.log('Connected to Feeder Chat');
+      console.log('Feeder Chatに接続しました');
     });
 
-    // 必要に応じてイベントをリッスン
+    // 例として、アクティブユーザー数を受け取るイベント
     socket.on('activeUserCount', (data) => {
-      console.log('Active User Count:', data);
+      console.log('アクティブユーザー数:', data);
       document.getElementById('activeUserCount').textContent = data;
     });
 
     // 接続切断時の処理
     socket.on('disconnect', () => {
-      console.log('Disconnected from Feeder Chat');
+      console.log('Feeder Chatから切断されました');
     });
   </script>
 </body>
