@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <title>Feeder Chat Monitor</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.1.0/socket.io.js"></script>
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
 </head>
 <body>
   <h1>Feeder Chat Monitor</h1>
-  <p>アクティブユーザー数: <span id="activeUserCount">0</span></p>
+  <p>オンラインユーザー数: <span id="onlineUserCount">0</span></p>
 
   <script>
-    // socket.io接続エンドポイントを指定し、SIDをクエリパラメータとして追加
+    // サーバーのURLとセッションIDを指定して接続
     const socket = io('https://www1.x-feeder.info:2096', {
       transports: ['polling'],
-      query: { EIO: 3, transport: 'polling', sid: 'k4iTSmjzmd-1HfG0AOXW' }
+      query: { EIO: 3, transport: 'polling', sid: 'Y8eA1bU_FU_2RptQAOaF' }
     });
 
     // サーバーから接続成功の通知を受け取る
@@ -21,10 +21,10 @@
       console.log('Feeder Chatに接続しました');
     });
 
-    // 例として、アクティブユーザー数を受け取るイベント
-    socket.on('activeUserCount', (data) => {
-      console.log('アクティブユーザー数:', data);
-      document.getElementById('activeUserCount').textContent = data;
+    // オンラインユーザー数のデータを受け取る
+    socket.on('onlineUserCount', (data) => {
+      console.log('オンラインユーザー数:', data);
+      document.getElementById('onlineUserCount').textContent = data;
     });
 
     // 接続切断時の処理
@@ -34,3 +34,4 @@
   </script>
 </body>
 </html>
+
