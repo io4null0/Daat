@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feeder Chat 監視ツール</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+        }
+        #notifications {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Feeder Chat 監視ツール</h1>
+    <div id="status">監視中...</div>
+    <div id="notifications"></div>
+
+    <script>
+        const url = "https://feederchat.example.com";  // FeederチャットのURLを指定
+
+        let lastMessage = "";
+
+        // Web通知を送る関数
+        function sendNotification(message) {
+            if (Notification.permission === "granted") {
+                new Notification("Feeder Chat 更新", {
+                    body: message,
+                    icon: "https://example.com/icon.png"
+                });
+            }
+        }
+
+        // 監視を開始
+        async function monitorChat() {
+            while (true) {
+                try {
+                    const response = await fetch(url);
+                    const text = await response.text();
+
+                    // メッセージを抽出（例としてHTMLを使ってメッセージを取得）
+                    const message = text.match(/<div class="latest-message">(.+)<\/div>/);
+                    if (message && message[1] !== lastMessage) {
+                        lastMessage = message[1];
+                        document.getElementById("status").innerText = "新しいメッセージ: " + lastMessage;
+                        document.getElementById("notifications").innerHTML = "最新メッセージ: " + lastMessage;
+                        
+                        // 通知を送信
+                        sendNotification("新しいメッセージがあります: " + lastMessage);
+                    }
+                } catch (error) {
+                    console.error("監視中にエラーが発生しました:", error);
+                }
+
+                // 5秒ごとにチェック
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+        }
+
+        // ページが読み込まれたときに通知の権限をリクエスト
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        // 監視を開始
+        monitorChat();
+    </script>
+</body>
+</html>
